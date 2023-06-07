@@ -37,13 +37,14 @@ import org.apache.spark.sql.catalyst.expressions.codegen.GenerateUnsafeProjectio
 import org.apache.spark.sql.catalyst.optimizer.{ConstantFolding, ConvertToLocalRelation, NullPropagation}
 import org.apache.spark.sql.catalyst.util.{ArrayData, GenericArrayData, MapData, TypeUtils}
 import org.apache.spark.sql.internal.SQLConf
+import org.apache.spark.sql.test.SharedSparkSessionBase
 import org.apache.spark.sql.types._
 import org.apache.spark.unsafe.types.UTF8String
 import org.scalactic.TripleEqualsSupport.Spread
 
 import scala.collection.mutable
 
-trait GlutenTestsTrait extends GlutenTestsCommonTrait {
+trait GlutenTestsTrait extends GlutenTestsCommonTrait with SharedSparkSessionBase {
 
   override def beforeAll(): Unit = {
     // prepare working paths
@@ -57,6 +58,11 @@ trait GlutenTestsTrait extends GlutenTestsCommonTrait {
     super.beforeAll()
     initializeSession()
     _spark.sparkContext.setLogLevel("WARN")
+  }
+
+  override protected def beforeEach(): Unit = {
+    super.beforeEach()
+    TestStats.resetOffload()
   }
 
   override def afterAll(): Unit = {
@@ -83,7 +89,9 @@ trait GlutenTestsTrait extends GlutenTestsCommonTrait {
     TestStats.reset()
   }
 
-  protected def initializeSession(): Unit = {
+  override protected implicit def spark: SparkSession = _spark
+
+  override protected def initializeSession(): Unit = {
     if (_spark == null) {
       val sparkBuilder = SparkSession
         .builder()
@@ -124,7 +132,7 @@ trait GlutenTestsTrait extends GlutenTestsCommonTrait {
     }
   }
 
-  protected var _spark: SparkSession = null
+  private var _spark: SparkSession = null
 
   override protected def checkEvaluation(expression: => Expression,
                                          expected: Any,

@@ -25,7 +25,7 @@ import org.apache.spark.sql.execution.FallbackStrategiesSuite
 import org.apache.spark.sql.extension.{GlutenCustomerExtensionSuite, GlutenSessionExtensionSuite}
 
 class ClickHouseTestSettings extends BackendTestSettings {
-
+  enableSuite[GlutenSQLQueryTestSuite]
   enableSuite[GlutenSessionExtensionSuite]
   enableSuite[GlutenCustomerExtensionSuite]
 

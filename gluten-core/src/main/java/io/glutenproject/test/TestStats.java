@@ -23,6 +23,10 @@ public class TestStats {
   public static int suiteTestNumber = 0;
   public static int offloadGlutenTestNumber = 0;
 
+  public static void resetOffload() {
+    offloadGluten = false;
+  }
+
   public static void reset() {
     offloadGluten = false;
     suiteTestNumber = 0;

@@ -126,7 +126,7 @@ import scala.util.Try
  * different types of UDFs. See 'udf/udf-inner-join.sql' as an example.
  */
 @ExtendedSQLTest
-class GlutenSQLQueryTestSuite extends QueryTest with SharedSparkSession with SQLHelper
+class GlutenSQLQueryTestSuite extends QueryTest with GlutenTestsTrait with SQLHelper
     with SQLQueryTestHelper {
 
   import IntegratedUDFTestUtils._
@@ -172,36 +172,6 @@ class GlutenSQLQueryTestSuite extends QueryTest with SharedSparkSession with SQL
 
   private val isCHBackend = BackendsApiManager.getBackendName
     .equalsIgnoreCase(GlutenConfig.GLUTEN_CLICKHOUSE_BACKEND)
-
-  protected override def sparkConf: SparkConf = {
-    val conf = super.sparkConf
-      // Fewer shuffle partitions to speed up testing.
-      .set(SQLConf.SHUFFLE_PARTITIONS, 4)
-      // use Java 8 time API to handle negative years properly
-      .set(SQLConf.DATETIME_JAVA8API_ENABLED, true)
-      .setAppName("Gluten-UT")
-      .set("spark.driver.memory", "1G")
-      .set("spark.sql.adaptive.enabled", "true")
-      .set("spark.sql.files.maxPartitionBytes", "134217728")
-      .set("spark.memory.offHeap.enabled", "true")
-      .set("spark.memory.offHeap.size", "1024MB")
-      .set("spark.plugins", "io.glutenproject.GlutenPlugin")
-      .set("spark.shuffle.manager", "org.apache.spark.shuffle.sort.ColumnarShuffleManager")
-
-    if (isCHBackend) {
-      conf
-        .set("spark.io.compression.codec", "LZ4")
-        .set("spark.gluten.sql.columnar.backend.ch.worker.id", "1")
-        .set("spark.gluten.sql.columnar.backend.ch.use.v2", "false")
-        .set("spark.gluten.sql.enable.native.validation", "false")
-        .set(GlutenConfig.GLUTEN_LIB_PATH, SystemParameters.getClickHouseLibPath)
-        .set("spark.sql.files.openCostInBytes", "134217728")
-        .set("spark.unsafe.exceptionOnMemoryLeak", "true")
-    } else {
-      conf.set("spark.unsafe.exceptionOnMemoryLeak", "true")
-    }
-    conf
-  }
 
   // SPARK-32106 Since we add SQL test 'transform.sql' will use `cat` command,
   // here we need to ignore it.
@@ -881,6 +851,10 @@ class GlutenSQLQueryTestSuite extends QueryTest with SharedSparkSession with SQL
 
   override def beforeAll(): Unit = {
     super.beforeAll()
+    // Fewer shuffle partitions to speed up testing.
+    spark.sessionState.conf.setConf(SQLConf.SHUFFLE_PARTITIONS, 4)
+    // use Java 8 time API to handle negative years properly
+    spark.sessionState.conf.setConf(SQLConf.DATETIME_JAVA8API_ENABLED, true)
     createTestTables(spark)
     RuleExecutor.resetMetrics()
     CodeGenerator.resetCompileTime()

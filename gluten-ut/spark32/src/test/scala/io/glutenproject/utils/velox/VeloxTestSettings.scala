@@ -37,7 +37,7 @@ import org.apache.spark.sql.extension.{GlutenCustomerExtensionSuite, GlutenSessi
 import org.apache.spark.sql.sources.{GlutenBucketedReadWithoutHiveSupportSuite, GlutenBucketedWriteWithoutHiveSupportSuite, GlutenCreateTableAsSelectSuite, GlutenDDLSourceLoadSuite, GlutenDisableUnnecessaryBucketedScanWithoutHiveSupportSuite, GlutenDisableUnnecessaryBucketedScanWithoutHiveSupportSuiteAE, GlutenExternalCommandRunnerSuite, GlutenFilteredScanSuite, GlutenFiltersSuite, GlutenInsertSuite, GlutenPartitionedWriteSuite, GlutenPathOptionSuite, GlutenPrunedScanSuite, GlutenResolvedDataSourceSuite, GlutenSaveLoadSuite, GlutenTableScanSuite}
 
 class VeloxTestSettings extends BackendTestSettings {
-
+  enableSuite[GlutenSQLQueryTestSuite]
   enableSuite[GlutenSessionExtensionSuite]
   enableSuite[GlutenCustomerExtensionSuite]
 
